@@ -8,28 +8,30 @@ import { useSelector } from 'react-redux'
 
 const Form = ({ currentId, setCurrenId }) => {
     const [postData, setPostData] = useState({
-        creator: '',
         title: '',
         message: '',
         tags: '',
         selectedFile: '',
     })
+    console.log(postData)
     const post = useSelector((state) =>
         currentId ? state.posts.find((post) => post._id === currentId) : null
     )
+    const user = JSON.parse(localStorage.getItem('profile'))
     const dispatch = useDispatch()
     const classes = useStyles()
     const handleSubmit = () => {
         if (currentId) {
-            dispatch(updatePost(currentId, postData))
+            dispatch(
+                updatePost(currentId, { ...postData, name: user?.result?.name })
+            )
         } else {
-            dispatch(createPost(postData))
+            dispatch(createPost({ ...postData, name: user?.result?.name }))
         }
         clear()
     }
     const clear = () => {
         setPostData({
-            creator: '',
             title: '',
             message: '',
             tags: '',
@@ -42,6 +44,17 @@ const Form = ({ currentId, setCurrenId }) => {
         setPostData(post)
     }, [post])
 
+    if (!user?.result?.name) {
+        return (
+            <Paper className={classes.paper}>
+                <Typography variant="h6" align="center">
+                    please sign in to create your own memories and like other's
+                    memories
+                </Typography>
+            </Paper>
+        )
+    }
+
     return (
         <Paper className={classes.paper}>
             <form
@@ -53,16 +66,7 @@ const Form = ({ currentId, setCurrenId }) => {
                 <Typography variant="h6">
                     {currentId ? 'Update' : 'Craete'} a memory
                 </Typography>
-                <TextField
-                    name="creator"
-                    variant="outlined"
-                    label="Craetor"
-                    fullWidth
-                    value={postData?.creator}
-                    onChange={(e) =>
-                        setPostData({ ...postData, creator: e.target.value })
-                    }
-                />
+
                 <TextField
                     name="title"
                     variant="outlined"
@@ -90,7 +94,10 @@ const Form = ({ currentId, setCurrenId }) => {
                     fullWidth
                     value={postData?.tags}
                     onChange={(e) =>
-                        setPostData({ ...postData, tags: e.target.value })
+                        setPostData({
+                            ...postData,
+                            tags: e.target.value.split(','),
+                        })
                     }
                 />
                 <div className={classes.fileInput}>
