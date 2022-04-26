@@ -14,6 +14,12 @@ const postsReducer = (state = { isLoading: false, posts: [] }, action) => {
                 numberOfPage: action.payload.numberOfPage,
             }
         }
+        case 'FETCH_POST': {
+            return {
+                ...state,
+                post: action.payload,
+            }
+        }
         case 'UPDATE': {
             return {
                 ...state,
