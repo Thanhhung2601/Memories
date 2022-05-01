@@ -53,6 +53,17 @@ const postsReducer = (state = { isLoading: false, posts: [] }, action) => {
                 posts: action.payload,
             }
         }
+        case 'COMMENT_POST': {
+            return {
+                ...state,
+                posts: state.posts.map((post) => {
+                    if (post._id === action.payload._id) {
+                        return action.payload
+                    }
+                    return post
+                }),
+            }
+        }
         default:
             return state
     }
