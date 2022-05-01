@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import moment from 'moment'
 import { useParams, useHistory, Link } from 'react-router-dom'
 import useStyles from './styles'
-import { getPost } from '../../actions/posts'
+import { getPost, getPostsBySearch } from '../../actions/posts'
 
 const PostDetails = () => {
     const { posts, isLoading, post } = useSelector((state) => state.posts)
@@ -13,10 +13,20 @@ const PostDetails = () => {
     const classes = useStyles()
     const { id } = useParams()
     const openPost = (_id) => history.push(`/posts/${_id}`)
-
+    console.log('post ', post)
     useEffect(() => {
+        console.log('useEffect 1 run')
         dispatch(getPost(id))
     }, [id])
+
+    useEffect(() => {
+        console.log('useEffect 2 run')
+        if (post) {
+            dispatch(
+                getPostsBySearch({ search: 'none', tags: post?.tags.join(',') })
+            )
+        }
+    }, [post])
 
     if (!post) return null
     if (isLoading) {
@@ -26,6 +36,8 @@ const PostDetails = () => {
             </Paper>
         )
     }
+
+    const recommendedPosts = posts.filter(({ _id }) => _id !== post._id)
 
     return (
         <Paper style={{ padding: '20px', borderRadius: '15px' }} elevation={6}>
@@ -72,6 +84,62 @@ const PostDetails = () => {
                     />
                 </div>
             </div>
+            {recommendedPosts.length && (
+                <div className={classes.section}>
+                    <Typography gutterBottom variant="h5">
+                        You might also like :{' '}
+                    </Typography>
+                    <Divider />
+                    <div className={classes.recommendedPosts}>
+                        {recommendedPosts.map(
+                            ({
+                                title,
+                                message,
+                                name,
+                                likes,
+                                selectedFile,
+                                _id,
+                            }) => (
+                                <div
+                                    key={_id}
+                                    style={{
+                                        margin: '20px',
+                                        cursor: 'pointer',
+                                    }}
+                                    onClick={() => openPost(_id)}
+                                >
+                                    <Typography gutterBottom variant="h6">
+                                        {title}
+                                    </Typography>
+                                    <Typography
+                                        gutterBottom
+                                        variant="subtitle2"
+                                    >
+                                        {name}
+                                    </Typography>
+                                    <Typography
+                                        gutterBottom
+                                        variant="subtitle2"
+                                    >
+                                        {message}
+                                    </Typography>
+                                    <Typography
+                                        gutterBottom
+                                        variant="subtitle1"
+                                    >
+                                        {likes.length}
+                                    </Typography>
+                                    <img
+                                        src={selectedFile}
+                                        alt=""
+                                        width="200px"
+                                    />
+                                </div>
+                            )
+                        )}
+                    </div>
+                </div>
+            )}
         </Paper>
     )
 }

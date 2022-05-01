@@ -28,7 +28,8 @@ const Post = ({ post, setCurrenId }) => {
         dispatch(deletePost(post._id))
     }
 
-    const handleLike = () => {
+    const handleLike = (event) => {
+        event.stopPropagation()
         dispatch(likePost(post._id))
     }
 
